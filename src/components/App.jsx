@@ -4,25 +4,15 @@ import css from './App.module.css';
 import ContactForm from './ContactForm/ContactForm';
 import { SearchFilter } from './SearchFilter/SearchFilter';
 import { ContactList } from './ContactList/ContactList';
-import { useEffect, useState } from 'react';
-
-const init = [
-  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-];
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 export const App = () => {
-  const [contacts, setContacts] = useState(
-    () => JSON.parse(localStorage.getItem('contacts')) ?? init
-  );
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contactsStore.contacts);
+  console.log('contacts:', contacts);
 
   const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
 
   const formSubmitData = data => {
     if (
@@ -41,7 +31,12 @@ export const App = () => {
       ...data,
       id: nanoid(),
     };
-    setContacts(prevState => [...prevState, newContact]);
+
+    const addContactAction = {
+      type: 'contacts/addContact',
+      payload: newContact,
+    };
+    dispatch(addContactAction);
   };
 
   const changeFilter = e => {
@@ -55,7 +50,12 @@ export const App = () => {
   };
 
   const deleteContacts = id => {
-    setContacts(prevState => prevState.filter(contact => contact.id !== id));
+    const deleteContactAction = {
+      type: 'contacts/deleteContact',
+      payload: id,
+    };
+    dispatch(deleteContactAction);
+    // setContacts(prevState => prevState.filter(contact => contact.id !== id));
   };
 
   return (
